@@ -1,6 +1,6 @@
 module Handler.Traits where
 
-import Import
+import Import hiding (async)
 
 import qualified Data.Text as T
 

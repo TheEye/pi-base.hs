@@ -30,8 +30,10 @@ data App = App
     , appRollbar :: Rollbar.Settings
     }
 
+
 production :: App -> Bool
 production app = (appEnvName . appSettings $ app) == "production"
+
 
 instance HasHttpManager App where
     getHttpManager = appHttpManager
@@ -94,8 +96,11 @@ handleMissing = selectRep $ do
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
 instance Yesod App where
-    approot = ApprootMaster $ appRoot . appSettings
-
+    --approot = ApprootMaster $ appRoot . appSettings
+    approot = ApprootRequest $ \app req ->
+        case appRoot $ appSettings app of
+            Nothing -> getApprootText guessApproot app req
+            Just root -> root
     -- Store session data on the client in encrypted cookies,
     -- default session idle timeout is 120 minutes
     makeSessionBackend _ = fmap Just $ defaultClientSessionBackend
@@ -221,7 +226,10 @@ instance Yesod App where
 
     makeLogger = return . appLogger
 
-    errorHandler err@(InternalError e) = do
+    errorHandler NotFound = handleMissing
+    errorHandler err = defaultErrorHandler err
+    
+    {-errorHandler err@(InternalError e) = do
       app <- getYesod
       if production app
         then
@@ -242,13 +250,14 @@ instance Yesod App where
         else
           $(logError) $ "Not running Rollbar outside production"
       handleError err
-    errorHandler NotFound = handleMissing
-    errorHandler err = defaultErrorHandler err
+    errorHandler NotFound = 
+    errorHandler err = defaultErrorHandler err-}
 
+{-    
 authGoogleEmail' :: App -> AuthPlugin App
 authGoogleEmail' app = authGoogleEmail (appGoogleId settings) (appGoogleSecret settings)
-  where settings = appSettings app
-
+    where settings = appSettings app
+    -}  
 -- How to run database actions.
 instance YesodPersist App where
     type YesodPersistBackend App = SqlBackend
@@ -291,7 +300,7 @@ instance YesodAuth App where
                     }
 
     -- You can add other plugins like BrowserID, email or OAuth here
-    authPlugins app = [authBrowserId def, authGoogleEmail' app]
+    authPlugins app = [authBrowserId def]--, authGoogleEmail' app]
 
     authHttpManager = getHttpManager
 

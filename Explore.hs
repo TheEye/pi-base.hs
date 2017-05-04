@@ -5,7 +5,7 @@ module Explore
 , checkTheorem
 ) where
 
-import Import
+import Import hiding (async)
 
 import Control.Concurrent (forkIO)
 import qualified Data.Set as S

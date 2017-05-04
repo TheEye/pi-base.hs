@@ -1,6 +1,6 @@
 module Handler.Theorems where
 
-import Import hiding (head)
+import Import hiding (head, async)
 import qualified Data.Set as S
 import Prelude (head)
 

@@ -12,7 +12,7 @@ module Logic
 , counterexamples
 ) where
 
-import Import hiding (negate, head)
+import Import hiding (negate, head, force)
 import Prelude (head)
 
 import qualified Data.Map as M
